@@ -1,0 +1,14 @@
+[Unit]
+Description=Firewall Test
+After=network.target
+
+[Service]
+ExecStart=bash /opt/firewall-test/run-client.sh
+Restart=always
+User=root
+WorkingDirectory=/opt/firewall-test
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
