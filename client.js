@@ -83,13 +83,18 @@ async function updateStatus() {
 
     // check all local ports are open
     for (let port of scan_ports) {
-      if (!openedPorts[port]) {
-        const server = require('http').createServer((req, res) => {
-          res.end('Client ' + clientId + ' listening on port ' + port);
-        });
-        server.listen(port);
-        openedPorts[port] = server;
-        console.log('Listening on port', port);
+      if (openedPorts[port] === undefined) {
+        try {
+          const server = require('http').createServer((req, res) => {
+            res.end('Client ' + clientId + ' listening on port ' + port);
+          })
+          await server.listen(port).catch(p => { console.log('Error listening on port', port, p) })
+          openedPorts[port] = server;
+          console.log('Listening on port', port);
+        } catch (e) {
+          console.error('Error listening on port', port, e);
+          openedPorts[port] = null;
+        }
       }
     }
 
@@ -98,7 +103,10 @@ async function updateStatus() {
       ...scan_ips.map(async ip => {
         const isAlive = await ping(ip);
         console.log(`Ping ${ip}:`, isAlive ? 'Alive' : 'Dead');
-        pingResults[ip] = isAlive;
+        if (isAlive) {
+          if (!pingResults[ip]) pingResults[ip] = {}
+          pingResults[ip]["ping"] = isAlive;
+        }
       }),
       ...scan_ips.map(async ip => {
         await Promise.all(scan_ports.map(async port => {
@@ -107,6 +115,10 @@ async function updateStatus() {
             console.log(`Port ${port} on ${ip}: Open`);
           } else {
             console.log(`Port ${port} on ${ip}: Closed`);
+          }
+          if (isAlive) {
+            if (!pingResults[ip]) pingResults[ip] = {}
+            pingResults[ip][String(port)] = isAlive;
           }
         }));
       }),

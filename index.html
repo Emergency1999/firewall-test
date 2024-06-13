@@ -55,10 +55,11 @@
           clientDiv.style.color = lastSeen < 5 ? 'black'
             : lastSeen < 10 ? 'orange' : 'red';
 
-          Object.keys(client.pingResults).filter(ip => client.pingResults[ip]).sort(sortIPs).forEach(ip => {
+          Object.keys(client.pingResults).sort(sortIPs).forEach(ip => {
             const pingDiv = document.createElement('div');
             pingDiv.className = 'ping-result';
-            pingDiv.innerText = `${ip}`;
+            let open = Object.keys(client.pingResults[ip]).filter(key => client.pingResults[ip][key])
+            pingDiv.innerText = `${ip}: ${open.join(', ')}`;
             clientDiv.appendChild(pingDiv);
           });
 
