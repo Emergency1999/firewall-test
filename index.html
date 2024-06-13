@@ -65,7 +65,11 @@
             pingDiv.appendChild(ipDiv);
 
             const openDiv = document.createElement('div');
-            openDiv.innerText = Object.keys(client.pingResults[ip]).filter(key => client.pingResults[ip][key]).map(String).sort((a, b) => a.localeCompare(b)).join(', ');
+            openDiv.innerText = Object.keys(client.pingResults[ip])
+              .filter(key => client.pingResults[ip][key])
+              .map(String)
+              .sort((a, b) => a.localeCompare(b))
+              .join(', ');
             pingDiv.appendChild(openDiv);
 
             clientDiv.appendChild(pingDiv);
