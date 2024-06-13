@@ -1,6 +1,6 @@
 const os = require('os');
 
-const serverUrl = 'http://localhost:3000/status';
+const serverUrl = 'https://pingtest.schmidag.de/status';
 let clientId = 0;
 
 function getLocalIPs() {
