@@ -50,8 +50,7 @@
           clientDiv.className = 'client';
           const lastSeen = Math.floor((new Date() - new Date(client.lastSeen)) / 1000)
 
-          clientDiv.innerHTML = `<h2>${client.ips.join(', ')}${lastSeen > 15 ? ` (${lastSeen}s)` : ''}</h2>`;
-          // change color depending on the last seen time: < 2s blue, < 5s green, < 10s yellow, < 15s orange, > 15s red
+          clientDiv.innerHTML = `<h2>${client.ips.join(', ')} (${client.openPorts.join(', ')})</h2>`;
           clientDiv.style.color = lastSeen < 5 ? 'black'
             : lastSeen < 10 ? 'orange' : 'red';
 

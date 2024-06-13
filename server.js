@@ -38,7 +38,7 @@ app.get('/data', (req, res) => {
 });
 
 app.post('/status', (req, res) => {
-  const { id, ips, pingResults } = req.body;
+  const { id, ips, pingResults, openPorts } = req.body;
   const now = new Date();
 
   let clientId = id;
@@ -52,6 +52,7 @@ app.post('/status', (req, res) => {
   // Update client information
   clients[clientId] = {
     ips: ips,
+    openPorts: openPorts,
     lastSeen: now,
     pingResults: pingResults
   };

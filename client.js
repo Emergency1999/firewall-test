@@ -71,10 +71,11 @@ async function updateStatus() {
     const localIPs = getLocalIPs();
 
     // Send initial status request
+    const openPorts = Object.keys(openedPorts).filter(port => openedPorts[port] !== null);
     const response = await fetch(serverUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: clientId, ips: localIPs, pingResults })
+      body: JSON.stringify({ id: clientId, ips: localIPs, pingResults, openPorts})
     });
     pingResults = {};
 
