@@ -39,21 +39,14 @@ async function ping(ip) {
 
 async function scanPort(ip, port) {
   return new Promise((resolve, reject) => {
-    const net = require('net');
-    const socket = new net.Socket();
-    socket.setTimeout(1000);
-    socket.on('connect', () => {
-      socket.destroy();
-      resolve(true);
+    // check if web server is running
+    exec(`nc -z -w 1 ${ip} ${port}`, (error, stdout, stderr) => {
+      if (error) {
+        resolve(false);
+      } else {
+        resolve(true);
+      }
     });
-    socket.on('timeout', () => {
-      socket.destroy();
-      resolve(false);
-    });
-    socket.on('error', () => {
-      resolve(false);
-    });
-    socket.connect(port, ip);
   });
 }
 
