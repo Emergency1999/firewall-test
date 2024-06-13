@@ -73,7 +73,10 @@ const openedPorts = {};
 
 function openPort(port) {
   const server = require('http').createServer((req, res) => {
-    res.end('Client ' + clientId + ' listening on port ' + port);
+    res.setStatusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');
+    res.send('Client ' + clientId + ' listening on port ' + port);
+    res.end();
   })
   openedPorts[port] = server;
   server.listen(port, "localhost", (err) => {
