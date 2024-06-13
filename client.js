@@ -24,6 +24,8 @@ async function ping(ip) {
   return isAlive;
 }
 
+let pingResults = {};
+
 async function updateStatus() {
   const localIPs = getLocalIPs();
 
@@ -31,13 +33,13 @@ async function updateStatus() {
   const response = await fetch(serverUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: clientId, ips: localIPs, pingResults: {} })
+    body: JSON.stringify({ id: clientId, ips: localIPs, pingResults})
   });
+  pingResults = {};
 
   const { clientId: newClientId, clients } = await response.json();
   clientId = newClientId;
-
-  const pingResults = {};
+  console.log('Status updated. Client ID:', clientId);
 
   for (let client of clients) {
     if (client.id !== clientId) {
@@ -48,14 +50,6 @@ async function updateStatus() {
     }
   }
 
-  // Send ping results
-  await fetch(serverUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: clientId, ips: localIPs, pingResults })
-  });
-
-  console.log('Status updated:', pingResults);
 }
 
-setInterval(updateStatus, 30000); // Update status every 30 seconds
+setInterval(updateStatus, 10000); // Update status every 10 seconds
