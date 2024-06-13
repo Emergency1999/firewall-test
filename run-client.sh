@@ -2,4 +2,4 @@
 git pull
 npm install
 
-node client.js
+sudo node client.js
