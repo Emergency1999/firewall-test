@@ -59,6 +59,21 @@ async function scanPort(ip, port) {
 
 const openedPorts = {};
 
+function openPort(port) {
+  const server = require('http').createServer((req, res) => {
+    res.end('Client ' + clientId + ' listening on port ' + port);
+  })
+  openedPorts[port] = server;
+  server.listen(port, "localhost", (err) => {
+    if (err) {
+      openedPorts[port] = null;
+      console.error('Error listening on port', port, err);
+    } else {
+      console.log('Listening on port', port);
+    }
+  })
+}
+
 let pingResults = {};
 
 let running = false
@@ -75,7 +90,7 @@ async function updateStatus() {
     const response = await fetch(serverUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: clientId, ips: localIPs, pingResults, openPorts})
+      body: JSON.stringify({ id: clientId, ips: localIPs, pingResults, openPorts })
     });
     pingResults = {};
 
@@ -85,23 +100,7 @@ async function updateStatus() {
     // check all local ports are open
     for (let port of scan_ports) {
       if (openedPorts[port] === undefined) {
-        try {
-          const server = require('http').createServer((req, res) => {
-            res.end('Client ' + clientId + ' listening on port ' + port);
-          })
-          server.listen(port, "localhost", (err) => {
-            if (err) {
-              openedPorts[port] = null;
-              console.error('Error listening on port', port, err);
-            } else {
-              openedPorts[port] = server;
-              console.log('Listening on port', port);
-            }
-          })
-        } catch (e) {
-          console.error('Error listening on port', port, e);
-          openedPorts[port] = null;
-        }
+        openPort(port);
       }
     }
 
@@ -118,11 +117,7 @@ async function updateStatus() {
       ...scan_ips.map(async ip => {
         await Promise.all(scan_ports.map(async port => {
           const isAlive = await scanPort(ip, port);
-          if (isAlive) {
-            console.log(`Port ${port} on ${ip}: Open`);
-          } else {
-            console.log(`Port ${port} on ${ip}: Closed`);
-          }
+          console.log(`Port ${ip} on ${port}:`, isAlive ? 'Open' : 'Closed');
           if (isAlive) {
             if (!pingResults[ip]) pingResults[ip] = {}
             pingResults[ip][String(port)] = isAlive;
