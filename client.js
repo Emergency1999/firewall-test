@@ -60,15 +60,20 @@ async function updateStatus() {
     const { clientId: newClientId, clients } = await response.json();
     clientId = newClientId;
 
+    const scanIPs = [];
     for (let client of clients) {
       if (client.id !== clientId) {
         for (let ip of client.ips) {
-          const isAlive = await ping(ip);
-          console.log(`Ping ${ip}:`, isAlive ? 'Alive' : 'Dead');
-          pingResults[ip] = isAlive;
+          scanIPs.push(ip);
         }
       }
     }
+
+    await Promise.all(scanIPs.map(async ip => {
+      const isAlive = await ping(ip);
+      console.log(`Ping ${ip}:`, isAlive ? 'Alive' : 'Dead');
+      pingResults[ip] = isAlive;
+    }));
 
   } catch (e) {
     console.error('Error updating status:', e);
@@ -77,4 +82,4 @@ async function updateStatus() {
 }
 
 updateStatus()
-setInterval(updateStatus, 1000); // Update status every second
+setInterval(updateStatus, 2000); // Update status every 2 seconds
