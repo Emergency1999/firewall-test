@@ -37,6 +37,27 @@ async function ping(ip) {
   });
 }
 
+async function scanPort(ip, port) {
+  return new Promise((resolve, reject) => {
+    const net = require('net');
+    const socket = new net.Socket();
+    socket.setTimeout(1000);
+    socket.on('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.on('timeout', () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.on('error', () => {
+      resolve(false);
+    });
+    socket.connect(port, ip);
+  });
+}
+
+const openedPorts = {};
 
 let pingResults = {};
 
@@ -57,23 +78,39 @@ async function updateStatus() {
     });
     pingResults = {};
 
-    const { clientId: newClientId, clients } = await response.json();
+    const { clientId: newClientId, scan_ips, scan_ports } = await response.json();
     clientId = newClientId;
 
-    const scanIPs = [];
-    for (let client of clients) {
-      if (client.id !== clientId) {
-        for (let ip of client.ips) {
-          scanIPs.push(ip);
-        }
+    // check all local ports are open
+    for (let port of scan_ports) {
+      if (!openedPorts[port]) {
+        const server = require('http').createServer((req, res) => {
+          res.end('Client ' + clientId + ' listening on port ' + port);
+        });
+        server.listen(port);
+        openedPorts[port] = server;
+        console.log('Listening on port', port);
       }
     }
 
-    await Promise.all(scanIPs.map(async ip => {
-      const isAlive = await ping(ip);
-      console.log(`Ping ${ip}:`, isAlive ? 'Alive' : 'Dead');
-      pingResults[ip] = isAlive;
-    }));
+    // ping all IPs and check all ports
+    await Promise.all([
+      ...scan_ips.map(async ip => {
+        const isAlive = await ping(ip);
+        console.log(`Ping ${ip}:`, isAlive ? 'Alive' : 'Dead');
+        pingResults[ip] = isAlive;
+      }),
+      ...scan_ips.map(async ip => {
+        await Promise.all(scan_ports.map(async port => {
+          const isAlive = await scanPort(ip, port);
+          if (isAlive) {
+            console.log(`Port ${port} on ${ip}: Open`);
+          } else {
+            console.log(`Port ${port} on ${ip}: Closed`);
+          }
+        }));
+      }),
+    ]);
 
   } catch (e) {
     console.error('Error updating status:', e);

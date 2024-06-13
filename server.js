@@ -12,18 +12,22 @@ process.on('SIGINT', function () {
 
 app.use(bodyParser.json());
 
-let clients = {
-  default: {
-    ips: [
-      "192.168.1.11",
-      "192.168.40.4",
-      "192.168.80.4",
-      "192.168.80.10",
-      "192.168.81.129",
-      "192.168.81.193",
-    ]
-  }
-};
+let clients = {}
+
+const defaultIPs = [
+  "192.168.1.11",
+  "192.168.40.4",
+  "192.168.80.4",
+  "192.168.80.10",
+  "192.168.81.129",
+  "192.168.81.193",
+]
+
+const ports = [
+  53,
+  80,
+  443,
+]
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -52,12 +56,17 @@ app.post('/status', (req, res) => {
     pingResults: pingResults
   };
 
-  // Send back the list of clients and their last seen time
+  // Send back client ID, all IPs to ping and all ports
+  const scan_ips = Object.keys(clients).reduce((acc, clientId) => {
+    if (clientId === id) return acc;
+    return acc.concat(clients[clientId].ips);
+  }, [...defaultIPs]);
   const response = {
     clientId: clientId,
-    clients: Object.keys(clients).map(clientId => ({
+    ips: Object.keys(clients).map(clientId => ({
       id: clientId,
-      ips: clients[clientId].ips,
+      scan_ips,
+      scan_ports: ports
     }))
   };
 
