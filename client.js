@@ -78,21 +78,21 @@ function openPort(port) {
     app.get('/', (req, res) => {
       res.send('Client ' + clientId + ' listening on port ' + port);
     });
-    app.on('error', (err) => {
-      openedPorts[port] = null;
-      console.error('Error listening on port', port, err);
-    });
-    openedPorts[port] = app.listen(port, (err) => {
+    openedPorts[port] = true;
+    app.listen(port, (err) => {
       if (err) {
-        openedPorts[port] = null;
+        openedPorts[port] = false;
         console.error('Error listening on port', port, err);
       } else {
         console.log('Listening on port', port);
       }
+    }).on('error', (err) => {
+      openedPorts[port] = false;
+      console.error('Error listening on port', port, err);
     });
 
   } catch (e) {
-    openedPorts[port] = null;
+    openedPorts[port] = false;
     console.error('Error listening on port', port, e);
   }
 }
