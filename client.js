@@ -37,11 +37,32 @@ async function ping(ip) {
   });
 }
 
-async function scanPort(ip, port) {
+async function scanPortTcp(ip, port) {
   return new Promise((resolve, reject) => {
-    // check if web server is running
-    exec(`nc -z -w 1 ${ip} ${port}`, (error, stdout, stderr) => {
-      if (error) {
+    const net = require('net');
+    const socket = new net.Socket();
+    socket.setTimeout(1000);
+    socket.on('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.on('timeout', () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.on('error', () => {
+      resolve(false);
+    });
+    socket.connect(port, ip);
+  });
+}
+
+async function scanPortUdp(ip, port) {
+  return new Promise((resolve, reject) => {
+    const dgram = require('dgram');
+    const socket = dgram.createSocket('udp4');
+    socket.send(Buffer.from(''), port, ip, (err) => {
+      if (err) {
         resolve(false);
       } else {
         resolve(true);
@@ -109,11 +130,14 @@ async function updateStatus() {
       }),
       ...scan_ips.map(async ip => {
         await Promise.all(scan_ports.map(async port => {
-          const isAlive = await scanPort(ip, port);
-          console.log(`Port ${ip} on ${port}:`, isAlive ? 'Open' : 'Closed');
+          const [isTCP, isUDP] = await Promise.all([scanPortTcp(ip, port), scanPortUdp(ip, port)]);
+
+          console.log(`Port ${ip} on ${port}: `, isTCP ? ' TCP' : '', isUDP ? ' UDP' : '');
+          const isAlive = isTCP || isUDP;
           if (isAlive) {
             if (!pingResults[ip]) pingResults[ip] = {}
-            pingResults[ip][String(port)] = isAlive;
+            if (isTCP) pingResults[ip][String(port) + "-TCP"] = isTCP;
+            if (isUDP) pingResults[ip][String(port) + "-UDP"] = isUDP;
           }
         }));
       }),
