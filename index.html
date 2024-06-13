@@ -33,6 +33,7 @@
       Object.keys(clients)
         .sort((a, b) => clients[a].ips[0] < clients[b].ips[0] ? -1 : 1)
         .forEach(clientId => {
+          if(clientId == "default") return
           const client = clients[clientId];
           const clientDiv = document.createElement('div');
           clientDiv.className = 'client';

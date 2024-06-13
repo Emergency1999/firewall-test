@@ -12,7 +12,11 @@ process.on('SIGINT', function () {
 
 app.use(bodyParser.json());
 
-let clients = {};
+let clients = {
+  default: {
+    ips: ["192.168.1.11"]
+  }
+};
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
