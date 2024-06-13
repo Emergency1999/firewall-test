@@ -20,7 +20,7 @@ const { exec } = require('child_process');
 
 async function ping(ip) {
   return new Promise((resolve, reject) => {
-    exec(`ping -c 1 ${ip}`, (error, stdout, stderr) => {
+    exec(`ping -c 1 -W 1 ${ip}`, (error, stdout, stderr) => {
       if (error) {
         // If there's an error, assume the host is not alive
         resolve(false);
