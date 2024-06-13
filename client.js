@@ -1,4 +1,5 @@
 const os = require('os');
+const express = require('express');
 
 const serverUrl = 'https://pingtest.kamaux.de/status';
 let clientId = 0;
@@ -72,21 +73,33 @@ async function scanPortTcp(ip, port) {
 const openedPorts = {};
 
 function openPort(port) {
-  const server = require('http').createServer((req, res) => {
-    res.setStatusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
+  // const server = require('http').createServer((req, res) => {
+  //   res.setStatusCode = 200;
+  //   res.setHeader('Content-Type', 'text/plain');
+  //   res.send('Client ' + clientId + ' listening on port ' + port);
+  //   res.end();
+  // })
+  // openedPorts[port] = server;
+  // server.listen(port, "localhost", (err) => {
+  //   if (err) {
+  //     openedPorts[port] = null;
+  //     console.error('Error listening on port', port, err);
+  //   } else {
+  //     console.log('Listening on port', port);
+  //   }
+  // })
+  const app = express();
+  app.get('/', (req, res) => {
     res.send('Client ' + clientId + ' listening on port ' + port);
-    res.end();
-  })
-  openedPorts[port] = server;
-  server.listen(port, "localhost", (err) => {
+  });
+  openedPorts[port] = app.listen(port, (err) => {
     if (err) {
       openedPorts[port] = null;
       console.error('Error listening on port', port, err);
     } else {
       console.log('Listening on port', port);
     }
-  })
+  });
 }
 
 let pingResults = {};
