@@ -57,17 +57,17 @@ async function scanPortTcp(ip, port) {
   });
 }
 
-async function scanPortUdp(ip, port) {
-  return new Promise((resolve, reject) => {
-    exec(`nc -u -z -w 1 ${ip} ${port}`, (error, stdout, stderr) => {
-      if (error) {
-        resolve(false);
-      } else {
-        resolve(true);
-      }
-    });
-  });
-}
+// async function scanPortUdp(ip, port) {
+//   return new Promise((resolve, reject) => {
+//     exec(`nc -u -z -w 1 ${ip} ${port}`, (error, stdout, stderr) => {
+//       if (error) {
+//         resolve(false);
+//       } else {
+//         resolve(true);
+//       }
+//     });
+//   });
+// }
 
 const openedPorts = {};
 
@@ -128,14 +128,12 @@ async function updateStatus() {
       }),
       ...scan_ips.map(async ip => {
         await Promise.all(scan_ports.map(async port => {
-          const [isTCP, isUDP] = await Promise.all([scanPortTcp(ip, port), scanPortUdp(ip, port)]);
+          const isTCP = await scanPortTcp(ip, port);
+          console.log(`Port ${ip} on ${port}:` isTCP ? 'Open' : 'Closed');
 
-          console.log(`Port ${ip} on ${port}: `, isTCP ? ' TCP' : '', isUDP ? ' UDP' : '');
-          const isAlive = isTCP || isUDP;
-          if (isAlive) {
+          if (isTCP) {
             if (!pingResults[ip]) pingResults[ip] = {}
-            if (isTCP) pingResults[ip][String(port) + "-TCP"] = isTCP;
-            if (isUDP) pingResults[ip][String(port) + "-UDP"] = isUDP;
+            pingResults[ip][String(port)] = isTCP;
           }
         }));
       }),
