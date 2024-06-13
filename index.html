@@ -37,7 +37,7 @@
           const clientDiv = document.createElement('div');
           clientDiv.className = 'client';
           clientDiv.innerHTML = `
-          <h2>${client.ips.join(', ')}${Math.round((new Date() - new Date(client.lastSeen)) / 1000) > 5 ? ` (${Math.round((new Date() - new Date(client.lastSeen)) / 1000)}s)` : ''}</h2>
+          <h2>${client.ips.join(', ')}${Math.round((new Date() - new Date(client.lastSeen)) / 1000) > 15 ? ` (${Math.round((new Date() - new Date(client.lastSeen)) / 1000)}s)` : ''}</h2>
         `;
 
           Object.keys(client.pingResults).filter(ip => client.pingResults[ip]).forEach(ip => {
