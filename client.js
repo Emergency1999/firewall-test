@@ -59,10 +59,8 @@ async function scanPortTcp(ip, port) {
 
 async function scanPortUdp(ip, port) {
   return new Promise((resolve, reject) => {
-    const dgram = require('dgram');
-    const socket = dgram.createSocket('udp4');
-    socket.send(Buffer.from(''), port, ip, (err) => {
-      if (err) {
+    exec(`nc -u -z -w 1 ${ip} ${port}`, (error, stdout, stderr) => {
+      if (error) {
         resolve(false);
       } else {
         resolve(true);
