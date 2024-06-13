@@ -40,7 +40,7 @@ async function ping(ip) {
 
 let pingResults = {};
 
-const running = false
+let running = false
 async function updateStatus() {
   if (running) return console.log('Already running')
   running = true
