@@ -41,7 +41,7 @@
           clientDiv.innerHTML = `<h2>${client.ips.join(', ')}${lastSeen > 15 ? ` (${lastSeen}s)` : ''}</h2>`;
           // change color depending on the last seen time: < 2s blue, < 5s green, < 10s yellow, < 15s orange, > 15s red
           clientDiv.style.color = lastSeen < 1 ? 'blue'
-            : lastSeen < 15 ? 'green'
+            : lastSeen < 15 ? 'black'
                 : lastSeen < 30 ? 'orange' : 'red';
 
           Object.keys(client.pingResults).filter(ip => client.pingResults[ip]).forEach(ip => {
