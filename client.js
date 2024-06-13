@@ -88,9 +88,15 @@ async function updateStatus() {
           const server = require('http').createServer((req, res) => {
             res.end('Client ' + clientId + ' listening on port ' + port);
           })
-          await server.listen(port).catch(p => { console.log('Error listening on port', port, p) })
-          openedPorts[port] = server;
-          console.log('Listening on port', port);
+          server.listen(port, "localhost", (err) => {
+            if (err) {
+              openedPorts[port] = null;
+              console.error('Error listening on port', port, err);
+            } else {
+              openedPorts[port] = server;
+              console.log('Listening on port', port);
+            }
+          })
         } catch (e) {
           console.error('Error listening on port', port, e);
           openedPorts[port] = null;
