@@ -73,11 +73,15 @@ async function scanPortTcp(ip, port) {
 const openedPorts = {};
 
 function openPort(port) {
-  const app = express();
-  app.get('/', (req, res) => {
-    res.send('Client ' + clientId + ' listening on port ' + port);
-  });
   try {
+    const app = express();
+    app.get('/', (req, res) => {
+      res.send('Client ' + clientId + ' listening on port ' + port);
+    });
+    app.on('error', (err) => {
+      openedPorts[port] = null;
+      console.error('Error listening on port', port, err);
+    });
     openedPorts[port] = app.listen(port, (err) => {
       if (err) {
         openedPorts[port] = null;
