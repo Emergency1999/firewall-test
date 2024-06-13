@@ -31,7 +31,7 @@
       container.innerHTML = '';
 
       Object.keys(clients)
-        .sort((a, b) => a.ips[0] > b.ips[0] ? -1 : 1)
+        .sort((a, b) => clients[a].ips[0] < clients[b].ips[0] ? -1 : 1)
         .forEach(clientId => {
           const client = clients[clientId];
           const clientDiv = document.createElement('div');
