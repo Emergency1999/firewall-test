@@ -129,7 +129,7 @@ async function updateStatus() {
       ...scan_ips.map(async ip => {
         await Promise.all(scan_ports.map(async port => {
           const isTCP = await scanPortTcp(ip, port);
-          console.log(`Port ${ip} on ${port}:` isTCP ? 'Open' : 'Closed');
+          console.log(`Port ${ip} on ${port}:`, isTCP ? 'Open' : 'Closed');
 
           if (isTCP) {
             if (!pingResults[ip]) pingResults[ip] = {}
