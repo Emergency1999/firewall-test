@@ -90,7 +90,6 @@ function openPort(port) {
       openedPorts[port] = false;
       console.error('Error listening on port', port, err);
     });
-
   } catch (e) {
     openedPorts[port] = false;
     console.error('Error listening on port', port, e);
@@ -109,7 +108,7 @@ async function updateStatus() {
     const localIPs = getLocalIPs();
 
     // Send initial status request
-    const openPorts = Object.keys(openedPorts).filter(port => openedPorts[port] !== null);
+    const openPorts = Object.keys(openedPorts).filter(port => openedPorts[port] !== false);
     const response = await fetch(serverUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
