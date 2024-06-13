@@ -40,10 +40,13 @@ async function ping(ip) {
 
 let pingResults = {};
 
+const running = false
 async function updateStatus() {
-  const fetch = (await import('node-fetch')).default;
-  console.log(clientId, pingResults)
+  if (running) return console.log('Already running')
+  running = true
   try {
+    const fetch = (await import('node-fetch')).default;
+    console.log(clientId, pingResults)
     const localIPs = getLocalIPs();
 
     // Send initial status request
@@ -70,7 +73,8 @@ async function updateStatus() {
   } catch (e) {
     console.error('Error updating status:', e);
   }
+  running = false
 }
 
 updateStatus()
-setInterval(updateStatus, 5000); // Update status every 5 seconds
+setInterval(updateStatus, 1000); // Update status every second

@@ -58,12 +58,12 @@ app.listen(port, () => {
 });
 
 
-// filter clients with last_seen > 12 seconds
+// filter clients with last_seen > 10 seconds
 setInterval(() => {
   const now = new Date();
   for (let clientId in clients) {
-    if (now - clients[clientId].lastSeen > 12000) {
+    if (now - clients[clientId].lastSeen > 10000) {
       delete clients[clientId];
     }
   }
-}, 2000); // Check every 2 seconds
+}, 1000); // Check every second
