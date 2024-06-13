@@ -1,6 +1,6 @@
 const os = require('os');
 
-const serverUrl = 'https://pingtest.schmidag.de/status';
+const serverUrl = 'https://pingtest.kamaux.de/status';
 let clientId = 0;
 
 function getLocalIPs() {
@@ -16,12 +16,27 @@ function getLocalIPs() {
   return addresses;
 }
 
+const { exec } = require('child_process');
+
 async function ping(ip) {
-  // Simulate a ping command
-  // In a real implementation, you might use a library or native ping command
-  const isAlive = Math.random() > 0.2; // 80% chance it's alive
-  return isAlive;
+  return new Promise((resolve, reject) => {
+    exec(`ping -c 1 ${ip}`, (error, stdout, stderr) => {
+      if (error) {
+        // If there's an error, assume the host is not alive
+        resolve(false);
+      } else {
+        // Check the output to determine if the ping was successful
+        const match = stdout.match(/1 received/);
+        if (match) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      }
+    });
+  });
 }
+
 
 let pingResults = {};
 
