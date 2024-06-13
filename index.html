@@ -24,6 +24,17 @@
     }
   </style>
   <script>
+
+    function sortIPs(ipa, ipb) {
+      const a = ipa.split('.');
+      const b = ipb.split('.');
+      for (let i = 0; i < 4; i++) {
+        if (a[i] < b[i]) return -1;
+        if (a[i] > b[i]) return 1;
+      }
+      return 0;
+    }
+
     async function fetchData() {
       const response = await fetch('/data');
       const clients = await response.json();
@@ -31,9 +42,9 @@
       container.innerHTML = '';
 
       Object.keys(clients)
-        .sort((a, b) => clients[a].ips[0] < clients[b].ips[0] ? -1 : 1)
+        .sort((a, b) => sortIPs(clients[a].ips[0], clients[b].ips[0]))
         .forEach(clientId => {
-          if(clientId == "default") return
+          if (clientId == "default") return
           const client = clients[clientId];
           const clientDiv = document.createElement('div');
           clientDiv.className = 'client';
@@ -42,9 +53,9 @@
           clientDiv.innerHTML = `<h2>${client.ips.join(', ')}${lastSeen > 15 ? ` (${lastSeen}s)` : ''}</h2>`;
           // change color depending on the last seen time: < 2s blue, < 5s green, < 10s yellow, < 15s orange, > 15s red
           clientDiv.style.color = lastSeen < 5 ? 'black'
-                : lastSeen < 10 ? 'orange' : 'red';
+            : lastSeen < 10 ? 'orange' : 'red';
 
-          Object.keys(client.pingResults).filter(ip => client.pingResults[ip]).forEach(ip => {
+          Object.keys(client.pingResults).filter(ip => client.pingResults[ip]).sort(sortIPs).forEach(ip => {
             const pingDiv = document.createElement('div');
             pingDiv.className = 'ping-result';
             pingDiv.innerText = `${ip}`;
