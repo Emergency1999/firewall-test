@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VLAN Monitoring</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 24px;
+    }
+    .client {
+      margin-bottom: 20px;
+    }
+    .ping-result {
+      margin-left: 20px;
+    }
+  </style>
+  <script>
+    async function fetchData() {
+      const response = await fetch('/data');
+      const clients = await response.json();
+      const container = document.getElementById('client-container');
+      container.innerHTML = '';
+
+      Object.keys(clients).forEach(clientId => {
+        const client = clients[clientId];
+        const clientDiv = document.createElement('div');
+        clientDiv.className = 'client';
+        clientDiv.innerHTML = `
+          <h2>${client.ips.join(', ')} (${Math.round((new Date() - new Date(client.lastSeen))/1000)}s)</h2>
+        `;
+
+        Object.keys(client.pingResults).filter(ip => client.pingResults[ip]).forEach(ip => {
+          const pingDiv = document.createElement('div');
+          pingDiv.className = 'ping-result';
+          pingDiv.innerText = `${ip}`;
+          clientDiv.appendChild(pingDiv);
+        });
+
+        container.appendChild(clientDiv);
+      });
+    }
+
+    window.onload = () => {
+      fetchData();
+      setInterval(fetchData, 1000); // Reload the page every 1 seconds
+    };
+  </script>
+</head>
+<body>
+  <h1>VLAN Monitoring</h1>
+  <div id="client-container">
+    <!-- Client data will be populated here -->
+  </div>
+</body>
+</html>

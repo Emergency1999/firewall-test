@@ -1,4 +1,3 @@
-const fetch = require('node-fetch');
 const os = require('os');
 
 const serverUrl = 'http://localhost:3000/status';
@@ -27,29 +26,36 @@ async function ping(ip) {
 let pingResults = {};
 
 async function updateStatus() {
-  const localIPs = getLocalIPs();
+  const fetch = (await import('node-fetch')).default;
+  console.log(clientId, pingResults)
+  try {
+    const localIPs = getLocalIPs();
 
-  // Send initial status request
-  const response = await fetch(serverUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: clientId, ips: localIPs, pingResults})
-  });
-  pingResults = {};
+    // Send initial status request
+    const response = await fetch(serverUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: clientId, ips: localIPs, pingResults })
+    });
+    pingResults = {};
 
-  const { clientId: newClientId, clients } = await response.json();
-  clientId = newClientId;
-  console.log('Status updated. Client ID:', clientId);
+    const { clientId: newClientId, clients } = await response.json();
+    clientId = newClientId;
 
-  for (let client of clients) {
-    if (client.id !== clientId) {
-      for (let ip of client.ips) {
-        const isAlive = await ping(ip);
-        pingResults[ip] = isAlive;
+    for (let client of clients) {
+      if (client.id !== clientId) {
+        for (let ip of client.ips) {
+          const isAlive = await ping(ip);
+          console.log(`Ping ${ip}:`, isAlive ? 'Alive' : 'Dead');
+          pingResults[ip] = isAlive;
+        }
       }
     }
-  }
 
+  } catch (e) {
+    console.error('Error updating status:', e);
+  }
 }
 
-setInterval(updateStatus, 10000); // Update status every 10 seconds
+updateStatus()
+setInterval(updateStatus, 5000); // Update status every 5 seconds

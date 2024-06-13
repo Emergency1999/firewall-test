@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
@@ -10,6 +11,10 @@ app.use(bodyParser.json());
 let clients = {};
 
 app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/data', (req, res) => {
   res.json(clients);
 });
 
@@ -23,6 +28,7 @@ app.post('/status', (req, res) => {
   if (id === 0) {
     clientId = uuidv4();
   }
+  console.log('Received status update from', clientId);
 
   // Update client information
   clients[clientId] = {
@@ -37,7 +43,6 @@ app.post('/status', (req, res) => {
     clients: Object.keys(clients).map(clientId => ({
       id: clientId,
       ips: clients[clientId].ips,
-      lastSeen: clients[clientId].lastSeen
     }))
   };
 
@@ -47,3 +52,14 @@ app.post('/status', (req, res) => {
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
+
+
+// filter clients with last_seen > 12 seconds
+setInterval(() => {
+  const now = new Date();
+  for (let clientId in clients) {
+    if (now - clients[clientId].lastSeen > 12000) {
+      delete clients[clientId];
+    }
+  }
+}, 2000); // Check every 2 seconds
