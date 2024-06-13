@@ -58,7 +58,7 @@
             const pingDiv = document.createElement('div');
             pingDiv.className = 'ping-result';
             let open = Object.keys(client.pingResults[ip]).filter(key => client.pingResults[ip][key])
-            pingDiv.innerText = `${ip}: ${open.join(', ')}`;
+            pingDiv.innerText = `${ip}: \t${open.join(', ')}`;
             clientDiv.appendChild(pingDiv);
           });
 
