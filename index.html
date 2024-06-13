@@ -65,7 +65,7 @@
             pingDiv.appendChild(ipDiv);
 
             const openDiv = document.createElement('div');
-            openDiv.innerText = Object.keys(client.pingResults[ip]).filter(key => client.pingResults[ip][key]).join(', ');
+            openDiv.innerText = Object.keys(client.pingResults[ip]).filter(key => client.pingResults[ip][key]).sort((a, b) => a - b).join(', ');
             pingDiv.appendChild(openDiv);
 
             clientDiv.appendChild(pingDiv);
