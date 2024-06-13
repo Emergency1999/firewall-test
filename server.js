@@ -63,11 +63,8 @@ app.post('/status', (req, res) => {
   }, [...defaultIPs]);
   const response = {
     clientId: clientId,
-    ips: Object.keys(clients).map(clientId => ({
-      id: clientId,
-      scan_ips,
-      scan_ports: ports
-    }))
+    scan_ips,
+    scan_ports: ports
   };
 
   res.json(response);
